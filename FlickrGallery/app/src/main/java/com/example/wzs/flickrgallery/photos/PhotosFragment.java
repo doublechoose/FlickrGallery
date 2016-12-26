@@ -15,6 +15,8 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.example.wzs.flickrgallery.R;
 import com.example.wzs.flickrgallery.data.PhotoItem;
+import com.example.wzs.flickrgallery.photopage.PhotoPagerActivity;
+import com.example.wzs.flickrgallery.util.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.List;
 public class PhotosFragment extends Fragment implements PhotosContract.View {
     private static final String TAG = "PhotosFragment";
     private RecyclerView mRecyclerView;
-    private List<PhotoItem> mItems = new ArrayList<>();
+    private ArrayList<PhotoItem> mItems = new ArrayList<>();
     private PhotosPresenter mPresenter;
     private PhotoAdapter mPhotoAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -130,9 +132,10 @@ public class PhotosFragment extends Fragment implements PhotosContract.View {
         }
     }
 
-    private class PhotoHolder extends RecyclerView.ViewHolder {
+    private class PhotoHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         private ImageView mIvPhoto;
+        private PhotoItem mPhotoItem;
 
         public PhotoHolder(View itemView) {
             super(itemView);
@@ -141,9 +144,14 @@ public class PhotosFragment extends Fragment implements PhotosContract.View {
 
         //绑定holder显示图片
         public void bindPhotoItem(PhotoItem item) {
-            Glide.with(getActivity()).load(item.getUrl())
-                    .placeholder(R.drawable.bill_up_close)
-                    .into(mIvPhoto);
+            ImageLoader.loadingImage(getActivity(),mIvPhoto,item.getUrl());
+            mPhotoItem = item;
+            mIvPhoto.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            getActivity().startActivity(PhotoPagerActivity.newIntent(getActivity(),mPhotoItem.getId()));
         }
     }
 
