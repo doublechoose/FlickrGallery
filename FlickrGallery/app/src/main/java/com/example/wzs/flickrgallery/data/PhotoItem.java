@@ -18,6 +18,9 @@ public class PhotoItem implements Parcelable{
     @SerializedName("url_s")
     private String mUrl;
 
+    public PhotoItem(){
+
+    }
     protected PhotoItem(Parcel in) {
         mCaption = in.readString();
         mId = in.readString();
