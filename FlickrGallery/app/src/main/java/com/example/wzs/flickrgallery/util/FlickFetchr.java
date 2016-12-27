@@ -51,8 +51,8 @@ public class FlickFetchr {
         return new String(getUrlBytes(urlSpec));
     }
 
-    public List<PhotoItem> fetchItems(){
-        List<PhotoItem> items = new ArrayList<>();
+    public ArrayList<PhotoItem> fetchItems(){
+        ArrayList<PhotoItem> items = new ArrayList<>();
         StringBuilder url = new StringBuilder();
         url.append("https://api.flickr.com/services/rest/?");
         url.append("method=flickr.photos.getRecent");

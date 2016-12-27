@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.example.wzs.flickrgallery.R;
 import com.example.wzs.flickrgallery.data.PhotoItem;
+import com.example.wzs.flickrgallery.data.PhotoLab;
 import com.example.wzs.flickrgallery.photopage.PhotoPagerActivity;
 import com.example.wzs.flickrgallery.util.ImageLoader;
 
@@ -61,6 +62,18 @@ public class PhotosFragment extends Fragment implements PhotosContract.View {
         View view = inflater.inflate(R.layout.fragment_photos, container, false);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.fragment_photos_recycler_view);
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.fragment_photos_swipe_refresh_layout);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
+        mSwipeRefreshLayout.setProgressViewOffset(true,0,getResources()
+        .getDimensionPixelOffset(R.dimen.srlayout_offset));
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mPresenter.loadPhotoItems();
+            }
+        });
+
         setUpAdapter();
         return view;
     }
@@ -74,7 +87,9 @@ public class PhotosFragment extends Fragment implements PhotosContract.View {
 
 
     @Override
-    public void showItems(List<PhotoItem> items) {
+    public void showItems(ArrayList<PhotoItem> items) {
+        PhotoLab photoLab = PhotoLab.get(getContext());
+        photoLab.setPhotoItems(items);
         if (items!=null && items.size()>0){
             mPhotoAdapter.replaceData(items);
         }
@@ -88,7 +103,14 @@ public class PhotosFragment extends Fragment implements PhotosContract.View {
 
     @Override
     public void pending() {
+        mSwipeRefreshLayout.setRefreshing(true);
+    }
 
+    @Override
+    public void cleanPending() {
+        if (mSwipeRefreshLayout.isRefreshing()){
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
     }
 
 

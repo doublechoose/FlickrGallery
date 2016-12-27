@@ -4,6 +4,7 @@ package com.example.wzs.flickrgallery.photos;
 import com.example.wzs.flickrgallery.data.PhotoItem;
 import com.example.wzs.flickrgallery.util.FlickFetchr;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
@@ -27,11 +28,13 @@ public class PhotosPresenter implements PhotosContract.Presenter {
     }
     @Override
     public void loadPhotoItems() {
-        mSubscription = Observable.create(new Observable.OnSubscribe<List<PhotoItem>>() {
+        mView.pending();
+        //获得数据
+        mSubscription = Observable.create(new Observable.OnSubscribe<ArrayList<PhotoItem>>() {
             @Override
-            public void call(Subscriber<? super List<PhotoItem>> subscriber) {
+            public void call(Subscriber<? super ArrayList<PhotoItem>> subscriber) {
                 try{
-                    List<PhotoItem> items =  new FlickFetchr().fetchItems();
+                    ArrayList<PhotoItem> items =  new FlickFetchr().fetchItems();
                     subscriber.onNext(items);
                 }catch (Exception e){
                     subscriber.onError(e);
@@ -39,10 +42,10 @@ public class PhotosPresenter implements PhotosContract.Presenter {
                 subscriber.onCompleted();
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<List<PhotoItem>>() {
+                .subscribe(new Subscriber<ArrayList<PhotoItem>>() {
                     @Override
                     public void onCompleted() {
-
+                        mView.cleanPending();
                     }
 
                     @Override
@@ -51,7 +54,9 @@ public class PhotosPresenter implements PhotosContract.Presenter {
                     }
 
                     @Override
-                    public void onNext(List<PhotoItem> photoItems) {
+                    public void onNext(ArrayList<PhotoItem> photoItems) {
+                        //显示数据
+                        mView.cleanPending();
                         mView.showItems(photoItems);
                     }
                 });

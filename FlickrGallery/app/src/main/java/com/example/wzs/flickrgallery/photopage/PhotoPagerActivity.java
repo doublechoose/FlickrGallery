@@ -12,6 +12,7 @@ import android.support.v4.view.ViewPager;
 
 import com.example.wzs.flickrgallery.R;
 import com.example.wzs.flickrgallery.data.PhotoItem;
+import com.example.wzs.flickrgallery.data.PhotoLab;
 import com.example.wzs.flickrgallery.photos.PhotosContract;
 import com.example.wzs.flickrgallery.photos.PhotosPresenter;
 
@@ -31,10 +32,11 @@ public class PhotoPagerActivity extends FragmentActivity implements PhotosContra
     private String mPhotoId;
     private PhotosPresenter mPresenter;
 
-    public static Intent newIntent(Context context, String id) {
+    public static Intent newIntent(Context context, String id/*,ArrayList<PhotoItem> list*/) {
 
         Intent intent = new Intent(context, PhotoPagerActivity.class);
         intent.putExtra(EXTRA_PHOTO_ID, id);
+//        intent.putParcelableArrayListExtra(EXTRA_PHOTO_LIST,list);
         return intent;
     }
 
@@ -43,28 +45,19 @@ public class PhotoPagerActivity extends FragmentActivity implements PhotosContra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_pager);
         mPhotoId = getIntent().getStringExtra(EXTRA_PHOTO_ID);
-        mList = getIntent().getParcelableArrayListExtra(EXTRA_PHOTO_LIST);
-        mPresenter = new PhotosPresenter(this);
-        mPresenter.start();
+//        mList = getIntent().getParcelableArrayListExtra(EXTRA_PHOTO_LIST);
+        PhotoLab photoLab = PhotoLab.get(this);
+        mList = photoLab.getPhotoItems();
+        if (mList==null){
+            mPresenter = new PhotosPresenter(this);
+            mPresenter.start();
+        }
         initView();
 
     }
 
     private void initView() {
         mViewPager = (ViewPager) findViewById(R.id.activity_photo_pager_view_pager);
-        if (mList != null) {
-            for (int i = 0; i < mList.size(); i++) {
-                if (mList.get(i).getId().equals(mPhotoId)) {
-                    mViewPager.setCurrentItem(i);
-                    break;
-                }
-            }
-        }
-    }
-
-    @Override
-    public void showItems(List<PhotoItem> items) {
-        mList = items;
         FragmentManager fm = getSupportFragmentManager();
         mViewPager.setAdapter(new FragmentStatePagerAdapter(fm) {
             @Override
@@ -81,6 +74,20 @@ public class PhotoPagerActivity extends FragmentActivity implements PhotosContra
                     return 0;
             }
         });
+        if (mList != null) {
+            for (int i = 0; i < mList.size(); i++) {
+                if (mList.get(i).getId().equals(mPhotoId)) {
+                    mViewPager.setCurrentItem(i);
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void showItems(ArrayList<PhotoItem> items) {
+        mList = items;
+        mViewPager.notifyAll();
     }
 
     @Override
@@ -90,6 +97,11 @@ public class PhotoPagerActivity extends FragmentActivity implements PhotosContra
 
     @Override
     public void pending() {
+
+    }
+
+    @Override
+    public void cleanPending() {
 
     }
 

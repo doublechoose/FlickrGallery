@@ -4,6 +4,7 @@ import com.example.wzs.flickrgallery.BasePresenter;
 import com.example.wzs.flickrgallery.BaseView;
 import com.example.wzs.flickrgallery.data.PhotoItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,11 +14,13 @@ import java.util.List;
 public interface PhotosContract {
     interface View extends BaseView<Presenter> {
 
-        void showItems(List<PhotoItem> items);
+        void showItems(ArrayList<PhotoItem> items);
 
         void showError();
 
         void pending();
+
+        void cleanPending();
     }
 
     interface Presenter extends BasePresenter {
